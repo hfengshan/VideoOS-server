@@ -1,0 +1,90 @@
+
+
+spring:
+  datasource:
+    url: xxxx
+    username: xxxx
+    password: xxxx
+    driver-class-name: com.mysql.jdbc.Driver
+  mqtt:
+    username: xxxx
+    password: xxxx
+    hostUrl: tcp://xx.xx.xx.xx:xxxx
+    nameHost: xxxx
+    clientId: xxxx
+    defaultTopic: xxxx
+    timeout: 10
+    keepalive: 20
+  cache:
+    type: caffeine
+    cache-names:
+      - plan
+    caffeine:
+      spec: maximumSize=5000,expireAfterWrite=3600s
+
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+redis:
+  shiro:
+    host: xxxx
+    port: 6379
+    timeout: 0
+    password: xxxx
+
+video:
+  oss:
+    endpoint: http://xxxx/
+    key: xxxx
+    secret: xxxx
+    bucketName: xxxx
+
+  sftp:
+    username: xxxx
+    password: xxxx
+    host: xx.xx.xx.xx
+    port: 22
+    rootPath: /data/static/
+
+  common:
+#    filePath: /Users/peng///Desktop/ceshiyasuo00/
+    filePath: /var/log/
+    preKey: dev/
+    cron:
+      loanPlan: 0 30 23 * * ? *
+      launchPlanClose: 0 0 1 * * ? *
+    loadcachecron: 0 0 23 * * ? *
+    fileTool: SftpUtil
+#    fileDomainName: http://videojj-os.videojj.com/
+    fileDomainName: http://xx/  #如果是本地文件服务就填写这个
+    aeskey: xx
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+mq:
+  rabbit:
+    address: xx.xx.xx.xx:xxxx
+    virtualHost: /
+<<<<<<< HEAD
+    username: xx
+    password: xx
+=======
+    username: admin
+    password: admin
+>>>>>>> 3a907aaa52628ba4426d46d24c4a6501ce62f27a
+    size: 1
+    exchange:
+      name: fanoutExchange
+      size: 1
+  concurrent:
+    consumers: 1
+  prefetch:
+    count: 50
+
+

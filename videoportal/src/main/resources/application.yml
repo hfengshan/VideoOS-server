@@ -1,0 +1,7 @@
+
+configserver:
+  port: xxxx
+spring:
+  profiles:
+    active: ${env}
+#    active: dev

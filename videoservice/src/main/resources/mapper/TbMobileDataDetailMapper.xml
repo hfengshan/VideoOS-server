@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.videojj.videoservice.dao.TbMobileDataDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.videojj.videoservice.entity.TbMobileDataDetail" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="mobile_data_id" property="mobileDataId" jdbcType="INTEGER" />
+    <result column="creative_id" property="creativeId" jdbcType="INTEGER" />
+    <result column="data_key" property="dataKey" jdbcType="VARCHAR" />
+    <result column="data_value" property="dataValue" jdbcType="VARCHAR" />
+    <result column="extra_info" property="extraInfo" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="MODIFIER" property="modifier" jdbcType="VARCHAR" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="CHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, user_id, mobile_data_id, creative_id, data_key, data_value, extra_info, creator, 
+    gmt_created, MODIFIER, gmt_modified, is_deleted
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_mobile_data_detail
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insertSelective" parameterType="com.videojj.videoservice.entity.TbMobileDataDetail" >
+    insert into tb_mobile_data_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="mobileDataId != null" >
+        mobile_data_id,
+      </if>
+      <if test="creativeId != null" >
+        creative_id,
+      </if>
+      <if test="dataKey != null" >
+        data_key,
+      </if>
+      <if test="dataValue != null" >
+        data_value,
+      </if>
+      <if test="extraInfo != null" >
+        extra_info,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="gmtCreated != null" >
+        gmt_created,
+      </if>
+      <if test="modifier != null" >
+        MODIFIER,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileDataId != null" >
+        #{mobileDataId,jdbcType=INTEGER},
+      </if>
+      <if test="creativeId != null" >
+        #{creativeId,jdbcType=INTEGER},
+      </if>
+      <if test="dataKey != null" >
+        #{dataKey,jdbcType=VARCHAR},
+      </if>
+      <if test="dataValue != null" >
+        #{dataValue,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null" >
+        #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null" >
+        #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.videojj.videoservice.entity.TbMobileDataDetail" >
+    update tb_mobile_data_detail
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileDataId != null" >
+        mobile_data_id = #{mobileDataId,jdbcType=INTEGER},
+      </if>
+      <if test="creativeId != null" >
+        creative_id = #{creativeId,jdbcType=INTEGER},
+      </if>
+      <if test="dataKey != null" >
+        data_key = #{dataKey,jdbcType=VARCHAR},
+      </if>
+      <if test="dataValue != null" >
+        data_value = #{dataValue,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null" >
+        extra_info = #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null" >
+        gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        MODIFIER = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.videojj.videoservice.entity.TbMobileDataDetail" >
+    update tb_mobile_data_detail
+    set user_id = #{userId,jdbcType=VARCHAR},
+      mobile_data_id = #{mobileDataId,jdbcType=INTEGER},
+      creative_id = #{creativeId,jdbcType=INTEGER},
+      data_key = #{dataKey,jdbcType=VARCHAR},
+      data_value = #{dataValue,jdbcType=VARCHAR},
+      extra_info = #{extraInfo,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      MODIFIER = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <insert id="batchInsertDetail">
+    insert into tb_mobile_data_detail
+    (user_id,
+    mobile_data_id,
+    creative_id,
+    data_key,
+    data_value,
+    extra_info,
+    creator,
+    gmt_created,
+    MODIFIER,
+    gmt_modified,
+    is_deleted)
+    values
+    <foreach collection="detailList" item="item" separator=",">
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        #{item.userId},
+        #{item.mobileDataId},
+        #{item.creativeId},
+        #{item.dataKey},
+        #{item.dataValue},
+        #{item.extraInfo},
+        'system',
+        now(),
+        'system',
+        now(),
+        'N'
+      </trim>
+    </foreach>
+  </insert>
+
+  <update id = "deleteDataByMobileDataId">
+
+    update tb_mobile_data_detail
+    set is_deleted = 'Y'
+    where mobile_data_id = #{mobileDataId,jdbcType=INTEGER}
+
+  </update>
+
+</mapper>

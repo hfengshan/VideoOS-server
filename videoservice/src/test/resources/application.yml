@@ -1,0 +1,61 @@
+
+
+spring:
+  datasource:
+    url: jdbc:mysql://rm-2zeup629529wxnv4o.mysql.rds.aliyuncs.com:3306/video_platform
+    username: videojj
+    password: test981&Myjsy
+    driver-class-name: com.mysql.jdbc.Driver
+  mqtt:
+    username: admin
+    password: public
+    hostUrl: tcp://10.66.88.157:1883
+    nameHost: test-mqtt.videojj.com
+    #    hostUrl: tcp://127.0.0.1:1883
+    clientId: mqttjs_e8022a4d0b
+    defaultTopic: ceshi
+    timeout: 10
+    keepalive: 20
+
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+redis:
+  shiro:
+    host: r-2ze33a597cac6ee4.redis.rds.aliyuncs.com
+    port: 6379
+    timeout: 0
+    password: Dev7AsmpP1s
+
+video:
+  oss:
+    endpoint: http://oss-cn-beijing.aliyuncs.com/
+    key: LTAIe6yte3Zr3X2e
+    secret: mI58HeuS27NhZn9UiDndUieT9nhHqF
+    bucketName: videojj-os
+    cdn: http://videojj-os.videojj.com/
+  sftp:
+    username: static
+    password: static
+    host: 10.66.90.208
+    port: 22
+    rootPath: /data/static/
+
+  common:
+    #    filePath: /Users/peng///Desktop/ceshiyasuo00/
+    filePath: /var/log/
+    preKey: dev/
+    cron: 0 30 23 * * ? *
+
+
+
+#    consumerId: CID-videojj_os
+#    accessKey: LTAITVsMzQopmyFX
+#    secretKey: BjXubiuXdXocdQKsaqlumW7fy9fkMC
+#    onsAddr: https://onsaddr-internal.aliyun.com:8080/rocketmq/nsaddr4client-internal
+#    topic: videojj_os
+#    producerId: PID-videojj_os
+#    cron: 0 30 23 * * ? *
+

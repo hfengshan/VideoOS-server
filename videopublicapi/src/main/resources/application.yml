@@ -1,0 +1,7 @@
+
+configserver:
+  port: 8072
+
+spring:
+  profiles:
+    active: dev

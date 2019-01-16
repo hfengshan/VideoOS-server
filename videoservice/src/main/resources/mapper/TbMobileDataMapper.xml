@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.videojj.videoservice.dao.TbMobileDataMapper">
+  <resultMap id="BaseResultMap" type="com.videojj.videoservice.entity.TbMobileData">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="creative_id" jdbcType="INTEGER" property="creativeId" />
+    <result column="business_info" jdbcType="VARCHAR" property="businessInfo" />
+    <result column="extra_info" jdbcType="VARCHAR" property="extraInfo" />
+    <result column="adv_id" jdbcType="VARCHAR" property="advId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_created" jdbcType="TIMESTAMP" property="gmtCreated" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="CHAR" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, creative_id, business_info, extra_info, adv_id, creator, gmt_created, 
+    modifier, gmt_modified, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_mobile_data
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_mobile_data
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.videojj.videoservice.entity.TbMobileData">
+    insert into tb_mobile_data (id, user_id, creative_id, 
+      business_info, extra_info, adv_id, 
+      creator, gmt_created, modifier, 
+      gmt_modified, is_deleted)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{creativeId,jdbcType=INTEGER}, 
+      #{businessInfo,jdbcType=VARCHAR}, #{extraInfo,jdbcType=VARCHAR}, #{advId,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreated,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.videojj.videoservice.entity.TbMobileData">
+    insert into tb_mobile_data
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="creativeId != null">
+        creative_id,
+      </if>
+      <if test="businessInfo != null">
+        business_info,
+      </if>
+      <if test="extraInfo != null">
+        extra_info,
+      </if>
+      <if test="advId != null">
+        adv_id,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreated != null">
+        gmt_created,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeId != null">
+        #{creativeId,jdbcType=INTEGER},
+      </if>
+      <if test="businessInfo != null">
+        #{businessInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null">
+        #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="advId != null">
+        #{advId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null">
+        #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.videojj.videoservice.entity.TbMobileData">
+    update tb_mobile_data
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeId != null">
+        creative_id = #{creativeId,jdbcType=INTEGER},
+      </if>
+      <if test="businessInfo != null">
+        business_info = #{businessInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null">
+        extra_info = #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="advId != null">
+        adv_id = #{advId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null">
+        gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.videojj.videoservice.entity.TbMobileData">
+    update tb_mobile_data
+    set user_id = #{userId,jdbcType=VARCHAR},
+      creative_id = #{creativeId,jdbcType=INTEGER},
+      business_info = #{businessInfo,jdbcType=VARCHAR},
+      extra_info = #{extraInfo,jdbcType=VARCHAR},
+      adv_id = #{advId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByUserIdAndCreativeId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_mobile_data
+    where user_id = #{userId,jdbcType=VARCHAR}
+      and creative_id = #{creativeId,jdbcType=INTEGER}
+      and is_deleted = 'N'
+  </select>
+
+</mapper>

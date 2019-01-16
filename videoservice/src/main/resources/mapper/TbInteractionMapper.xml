@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.videojj.videoservice.dao.TbInteractionMapper">
+  <resultMap id="BaseResultMap" type="com.videojj.videoservice.entity.TbInteraction">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="interaction_type_name" jdbcType="VARCHAR" property="interactionTypeName" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="extra_info" jdbcType="VARCHAR" property="extraInfo" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_created" jdbcType="TIMESTAMP" property="gmtCreated" />
+    <result column="MODIFIER" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="CHAR" property="isDeleted" />
+    <result column="is_system" jdbcType="CHAR" property="isSystem" />
+    <result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, interaction_type_name, file_name, content, extra_info, creator, gmt_created,
+    MODIFIER, gmt_modified, is_deleted, is_system, img_url
+  </sql>
+
+  <select id="selectPage"
+          resultMap="BaseResultMap">
+
+    select
+    <include refid="Base_Column_List" />
+    from tb_interaction
+    where
+      is_deleted='N'
+
+  </select>
+
+  <update id="logicallyDeleteByInteractionTypeName">
+    update tb_interaction set is_deleted='Y',MODIFIER=#{username} where interaction_type_name=#{interactionTypeName}
+  </update>
+
+  <select id="selectContentAndHotspot" resultType="map">
+    select a.content,b.hot_spot_num as hotspot from tb_interaction a inner join tb_creative b on b.interaction_id = a.id and b.id=#{creativeId}
+  </select>
+</mapper>

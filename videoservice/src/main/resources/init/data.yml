@@ -1,0 +1,36 @@
+kapai:
+  interactionTypeName: 卡牌
+  templateList:
+    -
+      templateName: 默认卡牌主题
+      zipFileName: card24.zip
+qipao:
+  interactionTypeName: 气泡
+  templateList:
+    -
+      templateName: 默认气泡主题
+      zipFileName: bubble18.zip
+toupiao:
+  interactionTypeName: 投票
+  templateList:
+    -
+      templateName: 默认投票主题
+      zipFileName: vote19.zip
+yuntu:
+  interactionTypeName: 云图
+  templateList:
+    -
+      templateName: 默认云图主题
+      zipFileName: cloud18.zip
+zhongcha:
+  interactionTypeName: 中插
+  templateList:
+    -
+      templateName: 默认中插主题
+      zipFileName: wedge19.zip
+klhb:
+  interactionTypeName: 红包
+  templateList:
+    -
+      templateName: 默认红包主题
+      zipFileName: hongbao.zip

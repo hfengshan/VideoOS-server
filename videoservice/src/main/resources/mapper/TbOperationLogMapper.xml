@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.videojj.videoservice.dao.TbOperationLogMapper">
+  <resultMap id="BaseResultMap" type="com.videojj.videoservice.entity.TbOperationLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="operation_desc" jdbcType="VARCHAR" property="operationDesc" />
+    <result column="operation_type" jdbcType="INTEGER" property="operationType" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_created" jdbcType="TIMESTAMP" property="gmtCreated" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="CHAR" property="isDeleted" />
+  </resultMap>
+  <resultMap id="ExtResultMap" type="com.videojj.videoservice.entity.TbOperationLogExt">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="operation_desc" jdbcType="VARCHAR" property="operationDesc" />
+    <result column="operation_type" jdbcType="INTEGER" property="operationType" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_created" jdbcType="TIMESTAMP" property="gmtCreated" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="CHAR" property="isDeleted" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, operation_desc, operation_type, creator, gmt_created, modifier, gmt_modified, 
+    is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_operation_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_operation_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.videojj.videoservice.entity.TbOperationLog">
+    insert into tb_operation_log (id, operation_desc, operation_type, 
+      creator, gmt_created, modifier, 
+      gmt_modified, is_deleted)
+    values (#{id,jdbcType=INTEGER}, #{operationDesc,jdbcType=VARCHAR}, #{operationType,jdbcType=INTEGER}, 
+      #{creator,jdbcType=VARCHAR}, #{gmtCreated,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.videojj.videoservice.entity.TbOperationLog">
+    insert into tb_operation_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="operationDesc != null">
+        operation_desc,
+      </if>
+      <if test="operationType != null">
+        operation_type,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="gmtCreated != null">
+        gmt_created,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="operationDesc != null">
+        #{operationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="operationType != null">
+        #{operationType,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null">
+        #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.videojj.videoservice.entity.TbOperationLog">
+    update tb_operation_log
+    <set>
+      <if test="operationDesc != null">
+        operation_desc = #{operationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="operationType != null">
+        operation_type = #{operationType,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtCreated != null">
+        gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.videojj.videoservice.entity.TbOperationLog">
+    update tb_operation_log
+    set operation_desc = #{operationDesc,jdbcType=VARCHAR},
+      operation_type = #{operationType,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      gmt_created = #{gmtCreated,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByParamWithPage" parameterType="map" resultMap="ExtResultMap">
+  select
+  o.id, o.operation_desc, o.operation_type, o.creator, o.gmt_created, o.modifier, o.gmt_modified, o.is_deleted
+  ,u.username
+  from tb_operation_log o left join tb_user u on u.username = o.creator
+  where o.is_deleted = 'N'
+  order by o.gmt_created desc limit ${offset} , ${size}
+  </select>
+  <select id="count" resultType="java.lang.Integer" >
+  select count(*) from tb_operation_log
+  </select>
+</mapper>

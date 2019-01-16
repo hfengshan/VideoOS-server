@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.videojj.videoservice.dao.TbLaunchPlanOperationMapper">
+  <resultMap id="BaseResultMap" type="com.videojj.videoservice.entity.TbLaunchPlanOperation">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="launch_plan_name" jdbcType="VARCHAR" property="launchPlanName" />
+    <result column="interaction_id" jdbcType="INTEGER" property="interactionId" />
+    <result column="creative_id" jdbcType="INTEGER" property="creativeId" />
+    <result column="creative_image_id" jdbcType="INTEGER" property="creativeImageId" />
+    <result column="launch_time_type" jdbcType="TINYINT" property="launchTimeType" />
+    <result column="launch_date_start" jdbcType="TIMESTAMP" property="launchDateStart" />
+    <result column="launch_date_end" jdbcType="TIMESTAMP" property="launchDateEnd" />
+    <result column="launch_time" jdbcType="VARCHAR" property="launchTime" />
+    <result column="launch_len_time" jdbcType="VARCHAR" property="launchLenTime" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="extra_info" jdbcType="VARCHAR" property="extraInfo" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="gmt_created" jdbcType="TIMESTAMP" property="gmtCreated" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
+    <result column="is_deleted" jdbcType="CHAR" property="isDeleted" />
+    <result column="hotspot_track_link" jdbcType="VARCHAR" property="hotspotTrackLink" />
+    <result column="info_track_link" jdbcType="VARCHAR" property="infoTrackLink" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, launch_plan_name, interaction_id, creative_id, creative_image_id, launch_time_type, 
+    launch_date_start, launch_date_end, launch_time, launch_len_time, status, extra_info, 
+    creator, gmt_created, modifier, gmt_modified, is_deleted, hotspot_track_link, info_track_link
+  </sql>
+
+  <select id="selectDetailInfoById" resultType="com.videojj.videoservice.entity.TbLaunchPlanOperationExt" >
+
+    select
+
+    tlp.id,
+    tlp.launch_plan_name launchPlanName,
+
+    tci.interaction_name interactionName,
+    tci.material_name creativeName,
+
+    tlp.interaction_id interactionId,
+    tlp.creative_id creativeId,
+    tlp_aggr.launch_video_id launchVideoId,
+    tlp.launch_time_type launchTimeType,
+    tlp.launch_date_start launchDateStart,
+    tlp.launch_date_end launchDateEnd,
+    tlp.launch_time  launchTime,
+    tlp.launch_len_time  launchLenTime,
+    tlp.status  status,
+    tlp.extra_info extraInfo,
+    tlp.creator creator,
+    tlp.gmt_created gmtCreated,
+    tlp.MODIFIER modifier,
+    tlp.gmt_modified gmtModified,
+    tlp.is_deleted isDeleted,
+    tlp.hotspot_track_link hotspotTrackLink,
+    tlp.info_track_link infoTrackLink
+
+    from tb_launch_plan_operation tlp
+
+    left join tb_creative_image tci on tlp.creative_image_id = tci.id
+
+    left join (select operation_id,group_concat(launch_video_id) launch_video_id from tb_launch_plan group by operation_id) tlp_aggr on tlp.id = tlp_aggr.operation_id
+
+    where tlp.is_deleted = 'N'
+
+    and tlp.id = #{id,jdbcType=INTEGER}
+
+  </select>
+
+  <select id="selectFinishedLaunchPlanOperation" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_launch_plan_operation a
+    where a.is_deleted = 'N' and a.status=1 and (a.launch_time_type in (0,2)) and a.launch_date_end &lt; DATE_FORMAT(CURDATE(),'%Y-%m-%d %H:%i:%s')
+  </select>
+
+
+</mapper>

@@ -7,11 +7,7 @@
     <groupId>com.videojj.videoplatform</groupId>
     <artifactId>videoplatform</artifactId>
     <packaging>pom</packaging>
-<<<<<<< HEAD
     <version>1.0.0-RELEASE</version>
-=======
-    <version>1.0.0-SNAPSHOT</version>
->>>>>>> 3a907aaa52628ba4426d46d24c4a6501ce62f27a
     <modules>
         <module>videoportal</module>
         <module>videoservice</module>

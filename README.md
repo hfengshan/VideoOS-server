@@ -1,4 +1,4 @@
-# VideoOS-server
+# VideoOS server
 VideoOS 服务端
 后端部署指南
 

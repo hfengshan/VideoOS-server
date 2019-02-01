@@ -1,152 +1,116 @@
 # VideoOS server
-VideoOS 服务端
-后端部署指南
+VideoOS server 后端部署指南
 
-一、准备工作
-1.1 Java
-OS服务端：1.8+
-必须选用Java 1.8+。
+## 准备工作
 
-建议1.8.0_111以上版本
+### 环境
+* Maven 3+
+* Jdk 1.8+
+* Mysql 5.6.5+
+* Redis 2.4.2+
 
-在配置好后，可以通过如下命令检查：
+VideoOS 后端系统目前兼容市面主流的MQ情况，如下：
 
-java -version
- 
+|  | RabbitMQ | MQTT | MNS | Kafka |
+| ------------ | ------------- | ------------ | ------------ | ------------ |
+| 版本 | RabbitMQ 3.6.1+ | MQTT 3.1+ | 阿里云商业版 | Kafka 2.1.4+ |
+| 是否支持 | 支持【默认必选】  | 支持【默认必选】 | 支持【可选方案】 | 支持【可选方案】 |
 
-1.2 MySQL
-版本要求：5.6.5+
-1.3、redis
-由于用户token管理采用了统一分布式管理，存储在redis上，因此依赖 redis缓存，此处不再详述redis的搭建，可以自行搜索相关教程。
+VideoOS 后端系统兼容主流文件存储系统情况，如下：
 
-1.4、emq
-emq是基于Erlang/OTP语言平台开发,百万级分布式开源物联网MQTT消息服务器,可以自行搭建，但是由于服务负荷很高，video++会提供相应的服务，具体可以联系我司，联系方式：400-8089-578
+|  | OSS | 七牛云 |
+| ------------ | ------------ | ------------ |
+| 版本 | 阿里云商业版 | 七牛云商业版 |
+| 是否支持 | 支持【默认必选】| 暂不支持 |
 
-1.5、文件服务
-oss:阿里云对象存储服务(Object Storage Service,简称OSS),是阿里云对外提供的海量、安全、低成本、高可靠的云存储服务。主要是文件存储使用，用户可以自行实现CommonFileServer接口，使用自己公司内部的文件服务器接口。
+## 部署步骤
 
-另外还提供了sftp的方式管理文件，具体采用哪一种方式进行文件管理，用户需要自己进行选择。
+### 初始化 VideoOS 后端数据库
 
-1.6、RabbitMq
-建议3.6.1及以上版本
+可以直接下载项目源码，获取`video_platform`初始化数据脚本，并且执行即可，正常情况下会生成16张表  
 
-1.7、RabbitMq
-运行环境安装ffmpeg
-
-1.8、环境
-分布式部署需要事先确定部署的环境以及部署方式。
-
-OS目前支持以下环境：
-
-DEV
-开发环境
-TEST
-测试环境
-PRE
-预发环境
-PRO
-生产环境
-二、部署步骤
-
-部署步骤共两步：
-
-创建数据库
-OS服务端依赖于MySQL数据库，所以需要事先创建并完成初始化
-按照相关中间件，获取源代码和更改相关配置
-
-首先安装emq等中间件，然后获取代码，打包之后，就可以部署到公司的测试和生产环境了
-2.1 创建数据库
-附件中OS所有的脚本DDL.sql以及文件OS所有的脚本DML.sql，两个脚本文件。
-
-2.2 按照相关中间件，获取源代码和更改相关配置
-1、获取源码地址：http://****.com
-
-2、首先更改一下源码中的数据库的配置，该项目的所有的配置都在videoservice模块的resources目录下，
-
-更改
-
+附件中 VideoOS 所有的脚本`DDL.sql`以及文件 VideoOS 所有的脚本`DML.sql`，两个脚本文件。  
+appliction.yml配置文件如下：
+```yml
 spring:
-   datasource:
- url: 
- username:
- password:
-更新为部署好的数据库的配置。
+  datasource:
+    url: jdbc:mysql://rm-xxxx.mysql.rds.aliyuncs.com:3306/video_platform
+    username: test
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+  mqtt:
+    username: xxxxx
+    password: xxxxx
+    hostUrl: tcp://10.xx.xx.xx:1883
+    nameHost: xxxx.videojj.com
+    clientId: mqttjs_e8022a4d0b
+    defaultTopic: ceshi
+    timeout: 10
+    keepalive: 20
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+    redis:
+      shiro:
+        host: r-xxxxx.redis.rds.aliyuncs.com
+        port: 6379
+        timeout: 0
+        password: xxxx
+    video:
+      oss:
+        endpoint: http://oss-cn-xxxx.aliyuncs.com/
+        key: xxxx
+        secret: xxxx
+        bucketName: videojj-os
+      sftp:
+        username: xxxx
+        password: xxxx
+        host: 10.xx.xx.xxx
+        port: 22
+        rootPath: /data/static/
+      common:
+        filePath: /var/log/
+        preKey: dev/
+        cron: 0 30 23 * * ? *
+        fileTool: SftpUtil
+        fileDomainName: http://os-xxx-xxxx.videojj.com/  #如果是本地文件服务就填写这个
+```
 
-3、部署emqtt，emqtt下载地址是：http://www.emqtt.com/，目前最新版本号是3.0，直接部署即可。
+### 运行环境安装ffmpeg
 
-部署完了之后，需要更新项目的配置文件中
+windows下手动下载ffmpeg官方地址[http://www.ffmpeg.org/download.html](http://www.ffmpeg.org/download.html)，默认安装即可。  
+debian Linux 安装方法：
+```shell
+apt-get install ffmpeg
+```
+Ubuntu Linux安装方法：
+```shell
+apt-get install ffmpeg
+```
 
-mqtt:
- username:
- password:
- hostUrl: 
-这几个配置项。
-4、部署redis(具体部署步骤此处不再详述）
-
-部署完成之后，需要更新
-
-redis:
- shiro:
- host: 
-    port: 
-    timeout: 
- password:
-这几个配置项，根据具体的配置，更改这些配置文件。
-
-5、部署oss和CDN
-
-oss是阿里的文件服务，如果用户不使用，也可以实现文件服务接口，另外还需要配置CDN，否则移动端下载文件可能会比较缓慢。
-
-以上服务开通之后，需要更改一下配置：
-
-video:
- oss:
- endpoint: 
-    key: 
-    secret: 
-    bucketName:
- cdn: 
-CDN服务，我司video++会提供相应的服务，具体可以联系我司，联系方式：400-8089-578
-
- 
-
-6、rabbitmq安装
-
- 
-
-安装完成之后，需要更改以下的配置：
-
- 
-
-mq:
- rabbit:
- address: 
-    virtualHost: /
-    username:
-    password:
-    size: 
-    exchange:
- name:
-      size: 1
- concurrent:
- consumers: 1
- prefetch:
- count: 50
-7、运行环境安装ffmpeg
-
-8、打包
-
-打包方式可以使用maven，到项目的根目录下，比如/User/cxy/videoos，然后执行命令mvn clean package即可。
-
-主要两个jar包，一个是videoportal-1.0.0.jar（后端控制台），还有一个是videopublicapi-1.0.0.jar（提供给移动端的接口）。
-
+### 打包
+打包方式可以使用maven，到项目的根目录下，比如`/User/cxy/videoos`，然后执行命令
+```shell
+mvn clean package
+```
+主要两个jar包，一个是videoportal-1.0.0.jar（后端控制台），还有一个是videopublicapi-1.0.0.jar（提供给移动端的接口）。 
 注意：一定要确保各个配置都更新好了之后再打包，否则启动的时候会有报错。
 
- 
-
-三、运行参数
-
+## 运行参数
+```shell
 java -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1536m -XX:MaxNewSize=1536m -XX:SurvivorRatio=22 –Denv = dev –jar xxx.jar
-四、业务日志
+```
+启动成功之后，  
+执行curl http://xxx.xxx.xxx.xxx:xx/videoos/index 测试videoportal是否可以正常使用  
+执行curl http://xxx.xxx.xxx.xxx:xx/videoos-api/index 测试videopublicapi是否可以正常使用  
+![](https://wiki.videojj.com/download/attachments/2196191/image2019-2-1%2017%3A38%3A36.png?version=1&modificationDate=1549013916936&api=v2)
 
+## 业务日志
 业务日志默认存在路径是/var/log，请确保该路径下的写文件权限。
+
+## 后端架构图
+![](https://wiki.videojj.com/download/attachments/2196191/image2019-1-21%2014_38_50.png?version=1&modificationDate=1549011604585&api=v2)
+
+## 网络架构图
+![](https://wiki.videojj.com/download/attachments/2196191/image2019-1-21%2014_41_41.png?version=1&modificationDate=1549011738272&api=v2)
+
+

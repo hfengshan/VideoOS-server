@@ -108,9 +108,10 @@ java -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=38
 业务日志默认存在路径是/var/log，请确保该路径下的写文件权限。
 
 ## 后端架构图
-![](https://wiki.videojj.com/download/attachments/2196191/image2019-1-21%2014_38_50.png?version=1&modificationDate=1549011604585&api=v2)
+![image](https://user-images.githubusercontent.com/45788704/52118933-9d50c200-2652-11e9-8405-7731c27cc475.png)
 
 ## 网络架构图
-![](https://wiki.videojj.com/download/attachments/2196191/image2019-1-21%2014_41_41.png?version=1&modificationDate=1549011738272&api=v2)
+![image](https://user-images.githubusercontent.com/45788704/52118941-a2ae0c80-2652-11e9-963a-2e36377caa57.png)
+
 
 

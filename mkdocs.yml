@@ -1,4 +1,4 @@
-site_name: VideoOS-server
+site_name: VideoOS server
 repo_url: https://github.com/VideoOS/VideoOS-server
 nav:
   - '后端部署': 'index.md'

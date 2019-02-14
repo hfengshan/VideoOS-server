@@ -66,7 +66,7 @@ public class RabbitConfiguration {
 
     @Bean
     FanoutExchange fanoutExchange() {
-        return new FanoutExchange("fanoutExchange");
+        return new FanoutExchange(exchangeName);
     }
 
 

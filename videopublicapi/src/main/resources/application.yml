@@ -1,6 +1,6 @@
 
 configserver:
-  port: 8072
+  port: xxxx
 
 spring:
   profiles:

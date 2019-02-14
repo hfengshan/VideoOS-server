@@ -17,4 +17,6 @@ public class TbCreativeExtInfo {
     private String materialContent;
 
     private String templateFileName;
+
+    private Integer creativeId;
 }

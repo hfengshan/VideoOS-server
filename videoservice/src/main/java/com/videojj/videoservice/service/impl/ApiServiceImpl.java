@@ -108,6 +108,8 @@ public class ApiServiceImpl implements ApiService {
 
         launchInfo.setTemplate(creativeExtInfo.getTemplateFileName());
 
+        launchInfo.setCreativeId(creativeExtInfo.getCreativeId());
+
         launchInfo.setDuration(30000L);
 
         launchInfo.setId(UUID.randomUUID().toString());

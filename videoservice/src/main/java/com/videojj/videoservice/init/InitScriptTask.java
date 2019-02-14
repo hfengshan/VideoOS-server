@@ -22,8 +22,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -71,8 +72,15 @@ public class InitScriptTask implements InitializingBean {
 
     private static final String TEMPLATE_ZIP_DIR_URL = TEMPLATE_DIR_URL + "zip/";
 
-    private InputStream getResourceAsStream(String localUrl){
-        return this.getClass().getClassLoader().getResourceAsStream(localUrl);
+    private InputStream getResourceAsStream(String localUrl) throws IOException {
+        URL url = this.getClass().getClassLoader().getResource(localUrl);
+        logger.info("InitScriptTask.getResourceAsStream() ----> File url : {}",url.getFile());
+        if(url.getFile().contains(".jar!")){
+            JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
+            return jarURLConnection.getInputStream();
+        }else {
+            return new FileInputStream(url.getFile());
+        }
     }
 
     @Override
@@ -87,7 +95,7 @@ public class InitScriptTask implements InitializingBean {
                     Map<String, List<LinkedHashMap>> interactionTypeAndTemplateListMap = new HashMap<>();
 
                     //测试文件服务
-                    commonFileServer.upload("test_connection", getResourceAsStream(TEST_CONNECTION_FILE_URL));
+                    commonFileServer.upload(commonConfig.getPreKey() + "test_connection", getResourceAsStream(TEST_CONNECTION_FILE_URL));
                     //上传应用默认图片
                     commonFileServer.upload(commonConfig.getPreKey() + Constants.INTERACTION_DEFAULT_JPG, getResourceAsStream(INTERACTION_DEFAULT_JPG_URL));
                     //文件服务开放访问 基础URL
@@ -103,9 +111,7 @@ public class InitScriptTask implements InitializingBean {
                             final String interactionType = (String) typeEntry.getKey();
                             final String interactionTypeName = (String) fields.get("interactionTypeName");
                             final String fileName = interactionType + ".json";
-                            final String content = FileUtil.readString(
-                                    new File(this.getClass().getClassLoader().getResource(INTERACTION_JSON_DIR_URL + fileName).getPath())
-                            );
+                            final String content = FileUtil.readUTFString(getResourceAsStream(INTERACTION_JSON_DIR_URL + fileName));
 
                             TbInteraction tbInteraction = new TbInteraction();
                             tbInteraction.setInteractionTypeName(interactionTypeName);

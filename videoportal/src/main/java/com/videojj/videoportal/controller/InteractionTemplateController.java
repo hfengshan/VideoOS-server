@@ -92,6 +92,7 @@ public class InteractionTemplateController {
 
         return BaseSuccessResultUtil.producessSuccess();
     }
+
     @PermissionService
     @RequestMapping(value = "/videoos/template/queryDetail", method = RequestMethod.GET)
     public @ResponseBody
@@ -105,6 +106,7 @@ public class InteractionTemplateController {
 
         return templateDetailInfoResponseDTO;
     }
+
     @PermissionService
     @RequestMapping(value = "/videoos/template/download", method = RequestMethod.POST)
     public ResponseEntity<FileSystemResource> listExport(@RequestBody DownLoadTemplateRequestDTO param) {

@@ -88,6 +88,8 @@ public class ExchangeDataUtil {
                     launchInfo.setTemplate(tbLaunchPlanApiInfoExt.getTemplateFileName());
 
                     launchInfo.setData(JSONObject.parseObject(tbLaunchPlanApiInfoExt.getMaterialContent()));
+
+                    launchInfo.setLaunchPlanId(tbLaunchPlanApiInfoExt.getLaunchPlanId());
                     /**对于即时投放的，只有一个时长*/
                     if (StringUtils.isNotEmpty(tbLaunchPlanApiInfoExt.getLaunchLenTime())) {
 
@@ -211,6 +213,8 @@ public class ExchangeDataUtil {
         launchInfo.setHotspotTrackLink(gson.fromJson(launchPlanApiInfoExt.getHotspotTrackLink(),new TypeToken<List<MonitorLinkDTO>>(){}.getType()));
 
         launchInfo.setInfoTrackLink(gson.fromJson(launchPlanApiInfoExt.getInfoTrackLink(),new TypeToken<List<MonitorLinkDTO>>(){}.getType()));
+
+        launchInfo.setLaunchPlanId(launchPlanApiInfoExt.getLaunchPlanId());
 
         launchInfoList.add(launchInfo);
 

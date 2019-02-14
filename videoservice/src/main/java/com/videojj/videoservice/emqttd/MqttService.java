@@ -52,6 +52,8 @@ public class MqttService {
 
         String launchInfoJson = commonAesService.encryResult(res);
 
+        log.info("MqttService.push ==> launchInfoJson is {}",launchInfoJson);
+
         mqttPushClient.publish(topic , launchInfoJson,pushCallback);
 
     }

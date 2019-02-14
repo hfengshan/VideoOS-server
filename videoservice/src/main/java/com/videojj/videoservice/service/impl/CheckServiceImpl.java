@@ -15,6 +15,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -199,12 +200,12 @@ public class CheckServiceImpl implements CheckService{
         验证投放计划
      */
     @Override
-    public String checkLaunchPlan(AddLaunchPlanRequestDTO request) {
+    public String checkLaunchPlan(String launchVideoIds,String launchDateStart,String launchDateEnd,Byte launchTimeType,List<List<String>> launchTime,String  launchLenTime) {
 
         // 1、查询出来这个videoId的所有的投放，如果是空，就直接放回空
         List<String> planNameList = new ArrayList<>();
 
-        for(String launchVideoId : launchPlanService.splitLaunchVideoIds(request.getLaunchVideoId())){
+        for(String launchVideoId : launchPlanService.splitLaunchVideoIds(launchVideoIds)){
             List<TbLaunchPlan> planList = tbLaunchPlanMapper.selectOnlineByLaunchVideoId(launchVideoId);
 
             if(CollectionUtils.isEmpty(planList)){
@@ -212,10 +213,10 @@ public class CheckServiceImpl implements CheckService{
             }
             try {
 
-                Date launchStartDate = DateUtil.parseShortDateString(request.getLaunchDateStart());
-                Date launchEndDate = DateUtil.parseShortDateString(request.getLaunchDateEnd());
+                Date launchStartDate = DateUtil.parseShortDateString(launchDateStart);
+                Date launchEndDate = DateUtil.parseShortDateString(launchDateEnd);
                 // 2、判断新加的这个是哪种投放类型
-                if (request.getLaunchTimeType().intValue() == 0) {
+                if (launchTimeType.intValue() == 0) {
                     // 3、视频时间的，是一种特殊的时间，处理方式也可以特殊一点，就是判断日期是否有交叉，如果有交叉，然后把时间转成秒，根据秒进行判断
                     for(TbLaunchPlan plan:planList){
                         /**首先确定，日期是有交叉的，不然就不需要看了*/
@@ -224,7 +225,7 @@ public class CheckServiceImpl implements CheckService{
                                 ||(DateUtil.compare(launchStartDate,plan.getLaunchDateStart())<0&&DateUtil.compare(launchEndDate,plan.getLaunchDateEnd())>0)){
 
                             /**如果确定日期有交叉，那就看时间是否有交叉，时间的交叉很容易，全部转换成秒就可以先转换请求的*/
-                            List<Map<String,Integer>> reqTimeMapList = produceVideoLaunchTimeInfo(gson.toJson(request.getLaunchTime()),request.getLaunchLenTime());
+                            List<Map<String,Integer>> reqTimeMapList = produceVideoLaunchTimeInfo(gson.toJson(launchTime),launchLenTime);
 
                             List<Map<String,Integer>> existTimeMapList = produceVideoLaunchTimeInfo(plan.getLaunchTime(),plan.getLaunchLenTime());
 
@@ -237,21 +238,21 @@ public class CheckServiceImpl implements CheckService{
                         }
                     }
                 }
-                if(request.getLaunchTimeType().intValue() == 1) {
+                if(launchTimeType.intValue() == 1) {
                     // 4、如果是即时投放的，那么有可能冲突的有两种情况，一种是即时的，一种是北京时间的
 
                     for (TbLaunchPlan plan : planList) {
 
                         Date realTime = new Date();
                         /**里面存储开始时间和结束时间，但是都是以秒来进行存储，判断的时候，就判断新增加的计划的秒数是否在已经存在的计划的区间内就可以了*/
-                        Map<String, Long> reqTimeMapList = produceRealTimeDateToLaunchTimeInfo(realTime, request.getLaunchLenTime());
+                        Map<String, Long> reqTimeMapList = produceRealTimeDateToLaunchTimeInfo(realTime, launchLenTime);
 
                         List<Map<String,Long>> existTimeMapList = null;
 
                         /**如果查询到的是1，那么就是有可能是直播即时投放的场景下*/
                         if (plan.getLaunchTimeType().intValue() == 1){
 
-                            Map<String,Long> exists = produceRealTimeDateToLaunchTimeInfo(plan.getGmtCreated(),plan.getLaunchLenTime());
+                            Map<String,Long> exists = produceRealTimeDateToLaunchTimeInfo(plan.getGmtModified(),plan.getLaunchLenTime());
 
                             existTimeMapList = new ArrayList<>();
 
@@ -275,18 +276,18 @@ public class CheckServiceImpl implements CheckService{
 
                 }
 
-                if(request.getLaunchTimeType().intValue() == 2) {
+                if(launchTimeType.intValue() == 2) {
                     for (TbLaunchPlan plan : planList) {
                         // 5、北京时间的 逻辑和即时投放的逻辑是一样的，但是有一点区别，就是北京时间的，可能投放时间会有多个，
-                        List<Map<String, Long>> reqTimeMapList  = produceBJDateToLaunchTimeInfo(DateUtil.parseShortDateString(request.getLaunchDateStart())
-                                ,DateUtil.parseShortDateString(request.getLaunchDateEnd()),gson.toJson(request.getLaunchTime()),request.getLaunchLenTime());
+                        List<Map<String, Long>> reqTimeMapList  = produceBJDateToLaunchTimeInfo(DateUtil.parseShortDateString(launchDateStart)
+                                ,DateUtil.parseShortDateString(launchDateEnd),gson.toJson(launchTime),launchLenTime);
 
                         List<Map<String,Long>> existTimeMapList = null;
                         if (plan.getLaunchTimeType().intValue() == 1){
 
                             existTimeMapList = new ArrayList<>();
 
-                            Map<String,Long> exists = produceRealTimeDateToLaunchTimeInfo(plan.getGmtCreated(),plan.getLaunchLenTime());
+                            Map<String,Long> exists = produceRealTimeDateToLaunchTimeInfo(plan.getGmtModified(),plan.getLaunchLenTime());
 
                             existTimeMapList.add(exists);
                         }

@@ -32,7 +32,7 @@ public class SftpUtilTest {
         //初始化sftp dev环境的配置信息
         Yaml yaml = new Yaml();
         LinkedHashMap sftpYamlMap = ((LinkedHashMap) ((LinkedHashMap) ((LinkedHashMap) yaml.load(this.getClass()
-                .getResourceAsStream("/application-dev.yml"))).get("video")).get("sftp"));
+                .getResourceAsStream("/2application-dev.yml2"))).get("video")).get("sftp"));
         sftpConfig.setUsername(sftpYamlMap.get("username").toString());
         sftpConfig.setPassword(sftpYamlMap.get("password").toString());
         sftpConfig.setHost(sftpYamlMap.get("host").toString());

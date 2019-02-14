@@ -71,13 +71,8 @@ mq:
   rabbit:
     address: xx.xx.xx.xx:xxxx
     virtualHost: /
-<<<<<<< HEAD
     username: xx
     password: xx
-=======
-    username: admin
-    password: admin
->>>>>>> 3a907aaa52628ba4426d46d24c4a6501ce62f27a
     size: 1
     exchange:
       name: fanoutExchange

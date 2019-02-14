@@ -8,12 +8,10 @@ import com.videojj.videoservice.service.StatisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * Created by zhangzhewen on 2019/01/9 上午10:04.
@@ -29,10 +27,16 @@ public class StatisticsController extends AbstractController {
 
     @RequestMapping(value = "/statistic", method = RequestMethod.POST)
     public @ResponseBody
-    CommonResponseDTO statistic(@RequestParam(name = "videoId", required = true) String videoId,
-                                @RequestParam(name = "launchPlanId", required = true) Integer launchPlanId,
-                                @RequestParam(name = "type", required = true) Integer type,
-                                @RequestParam(name = "eventType", required = true) Integer eventType) {
+    CommonResponseDTO statistic(
+            @RequestBody Map<String,Object> param
+            ) {
+
+        String videoId  = (String)param.get("videoId");
+        Integer launchPlanId = Integer.parseInt((String)param.get("launchPlanId"));
+        Integer type = Integer.parseInt((String)param.get("type"));
+        Integer eventType = Integer.parseInt((String)param.get("eventType"));
+
+        log.info("StatisticsController.statistic ==> videoId is {}, launchPlanId is {}, type is {}, eventType is {}", videoId,launchPlanId,type,eventType);
 
         CommonResponseDTO resDTO = new CommonResponseDTO();
         try {
@@ -44,7 +48,7 @@ public class StatisticsController extends AbstractController {
             return resDTO;
         }
 
-        log.info("StatisticsController.statistic ==> videoId is {},launchPlanId is {}, type is {}, eventType is {}", videoId,launchPlanId,type,eventType);
+
         resDTO.setResCode(Constants.SUCESSCODE);
         resDTO.setResMsg(Constants.COMMONSUCCESSMSG);
         return resDTO;

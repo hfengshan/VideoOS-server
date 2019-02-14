@@ -17,6 +17,8 @@ public interface LaunchPlanCache {
 
     public void remove(String videoId);
 
+    public void removeAll(boolean redis);
+
     public List<TbLaunchPlanApiInfoExt> updateRedis(String videoId);
 
     public List<TbLaunchPlanApiInfoExt> updateLocalCache(String videoId);

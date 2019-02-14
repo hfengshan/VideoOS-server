@@ -17,6 +17,8 @@ public final class Constants {
 
     public static final String CREATEDDESC =                          "gmt_created desc";
 
+    public static final String IDDESC =                          "id desc";
+
     public static final String SLASH =                                "/";
 
     public static final String LUASUFFIX =                            ".lua";

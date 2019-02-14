@@ -2,6 +2,8 @@ package com.videojj.videoservice.service;
 
 import com.videojj.videoservice.dto.AddLaunchPlanRequestDTO;
 
+import java.util.List;
+
 /**
  * @Author @videopls.com
  * Created by  on 2018/8/27 下午3:59.
@@ -23,5 +25,5 @@ public interface CheckService {
 
     boolean isInUseInteractionTypeName(String interactionTypeName);
 
-    String checkLaunchPlan(AddLaunchPlanRequestDTO request);
+    String checkLaunchPlan(String launchVideoIds, String launchDateStart, String launchDateEnd, Byte launchTimeType, List<List<String>> launchTime, String  launchLenTime);
 }

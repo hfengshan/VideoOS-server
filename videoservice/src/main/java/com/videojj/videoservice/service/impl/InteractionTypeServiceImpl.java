@@ -70,6 +70,7 @@ public class InteractionTypeServiceImpl implements InteractionTypeService {
 
         TbInteraction condition = new TbInteraction();
         condition.setInteractionTypeName(interactionTypeName);
+        condition.setIsDeleted(IsDeletedEnum.NO.getValue());
         List<TbInteraction> infoList = tbInteractionMapper.select(condition);
 
         if(!CollectionUtils.isEmpty(infoList)){
@@ -138,12 +139,11 @@ public class InteractionTypeServiceImpl implements InteractionTypeService {
             @Override
             public Boolean doInTransaction(TransactionStatus tranStatus) {
                 try {
-
-                    tbInteractionMapper.logicallyDeleteByInteractionTypeName(interactionTypeName,username);
                     /**如果逻辑删除类型，相应的模版和素材都逻辑删除
                      * 2018-11-30 by zhangzhewen*/
                     tbTemplateMapper.logicallyDeleteByInteractionTypeName(interactionTypeName,username);
                     tbCreativeMapper.logicallyDeleteByInteractionTypeName(interactionTypeName,username);
+                    tbInteractionMapper.logicallyDeleteByInteractionTypeName(interactionTypeName,username);
 
                 }catch (Exception e){
 

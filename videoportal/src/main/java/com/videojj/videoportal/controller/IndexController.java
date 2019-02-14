@@ -1,11 +1,14 @@
 package com.videojj.videoportal.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.videojj.videoservice.config.CommonConfig;
 import com.videojj.videoservice.dto.UserPageInfoResponseDTO;
 import com.videojj.videoservice.encry.CommonAesService;
 import com.videojj.videoservice.encry.CommonRSAService;
 import com.videojj.videoservice.encry.RSA;
 import com.videojj.videoservice.handler.SendEmqService;
 import com.videojj.videoservice.service.UserService;
+import com.videojj.videoservice.util.AesUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -39,6 +42,9 @@ public class IndexController {
 
     @Resource
     private RabbitTemplate myRabbitmqTemplate;
+
+    @Resource
+    private CommonConfig commonConfig;
 
     @RequestMapping("/videoos/index")
     public @ResponseBody String hello(){
@@ -88,6 +94,17 @@ public class IndexController {
 
         return paramStr;
     }
+
+    @RequestMapping("/videoos/encrypt4Aes")
+    public @ResponseBody String encrypt4Aes(@RequestBody Map<String,Object> data){
+
+        String encryData = AesUtils.encrypt4Aes(commonConfig.getAesKey(), JSON.toJSONString(data));
+
+        System.out.println("测试");
+
+        return encryData;
+    }
+
 
 
 }

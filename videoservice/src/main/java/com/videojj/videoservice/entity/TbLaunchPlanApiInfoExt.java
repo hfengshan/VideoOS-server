@@ -40,4 +40,6 @@ public class TbLaunchPlanApiInfoExt {
 
     private String infoTrackLink;
 
+    private Integer launchPlanId;
+
 }

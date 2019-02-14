@@ -54,4 +54,6 @@ public class LaunchPlanDetailInfoResponseDTO {
     private List<MonitorLinkDTO> hotspotTrackLink;
 
     private List<MonitorLinkDTO> infoTrackLink;
+
+    private String infoTrackLinkTitle;
 }

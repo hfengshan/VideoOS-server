@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 用户行为统计
+ * 用户行为统计结果
  *
  * @author zhangzhewen
  * @date 2019/1/10
@@ -22,12 +22,16 @@ public class UserBehaviorStatisticsDTO {
     private Integer infoClickExposureCount;
     //信息层上的点击位点击量
     private Integer infoClickEventCount;
+    //信息层上的点击位点击率
+    private Integer infoClickRate = 0;
     //热点曝光量
     private Integer hotspotShowExposureCount;
     //热点点击位曝光量
     private Integer hotspotClickExposureCount;
     //热点点击位点击量
     private Integer hotspotClickEventCount;
+    //热点点击位点击率
+    private Integer hotspotClickRate = 0;
 
     private String resCode;
     private String resMsg;

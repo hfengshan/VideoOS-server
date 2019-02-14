@@ -13,5 +13,7 @@ import com.videojj.videoservice.enums.UserBehaviorStatisticsTypeEnum;
 public interface StatisticsService {
     void collectUserBehavior(String videoId, Integer launchPlanId, UserBehaviorStatisticsTypeEnum userBehaviorStatisticsTypeEnum, UserBehaviorStatisticsEventTypeEnum userBehaviorStatisticsEventTypeEnum);
 
+    void collectVideoPlayTimes(String videoId,Long times);
+
     UserBehaviorStatisticsDTO selectUserBehavior(String startDate, String endDate, String videoId, Integer interactionId);
 }

@@ -413,6 +413,8 @@ public class TemplateExtServiceImpl extends AbstractTemplateService implements T
 
         templateCri.andTemplateNameEqualTo(templateName);
 
+        templateCri.andIsDeletedEqualTo(IsDeletedEnum.NO.getValue());
+
         List<TbTemplate> tbtemlist = tbTemplateMapper.selectByParam(qryParam);
 
         if (!CollectionUtils.isEmpty(tbtemlist)

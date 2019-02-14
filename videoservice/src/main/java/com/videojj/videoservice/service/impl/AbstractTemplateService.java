@@ -77,7 +77,7 @@ public abstract class AbstractTemplateService {
 
         crit.andIsDeletedEqualTo(IsDeletedEnum.NO.getValue());
 
-        tbTemplateZipFileCriteria.setOrderByClause(Constants.CREATEDDESC);
+        tbTemplateZipFileCriteria.setOrderByClause(Constants.IDDESC);
 
         List<TbTemplateZipFile> zipFileList = tbTemplateZipFileMapper.selectByParam(tbTemplateZipFileCriteria);
 

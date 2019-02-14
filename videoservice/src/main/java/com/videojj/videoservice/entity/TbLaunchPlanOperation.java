@@ -119,6 +119,20 @@ public class TbLaunchPlanOperation {
     private String infoTrackLink;
 
     /**
+     * 信息层监控链接标题
+     */
+    @Column(name = "`info_track_link_title`")
+    private String infoTrackLinkTitle;
+
+    public String getInfoTrackLinkTitle() {
+        return infoTrackLinkTitle;
+    }
+
+    public void setInfoTrackLinkTitle(String infoTrackLinkTitle) {
+        this.infoTrackLinkTitle = infoTrackLinkTitle;
+    }
+
+    /**
      * @return id
      */
     public Integer getId() {

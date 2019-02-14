@@ -4,16 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.videojj.videocommon.constant.Constants;
-import com.videojj.videocommon.util.DateUtil;
 import com.videojj.videoservice.annotation.AesService;
+import com.videojj.videoservice.apidto.CommonResponseDTO;
 import com.videojj.videoservice.apidto.ConfigResponseDTO;
 import com.videojj.videoservice.apidto.LaunchApiQueryInfoResponseDTO;
 import com.videojj.videoservice.apidto.PreloadLaunchInfoResponseDTO;
 import com.videojj.videoservice.cache.FileVersionCache;
+import com.videojj.videoservice.cache.LaunchPlanCache;
 import com.videojj.videoservice.config.CommonConfig;
 import com.videojj.videoservice.config.MqttProperties;
 import com.videojj.videoservice.dto.NewVersionInfoResponseDTO;
 import com.videojj.videoservice.service.ApiService;
+import com.videojj.videoservice.service.StatisticsService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,12 @@ public class ApiController extends AbstractController{
 
     @Resource
     private FileVersionCache fileVersionCache;
+
+    @Resource
+    private LaunchPlanCache launchPlanCache;
+
+    @Resource
+    private StatisticsService statisticsService;
 
     @AesService
     @RequestMapping(value = "/api/fileVersion", method = RequestMethod.POST)
@@ -89,7 +96,15 @@ public class ApiController extends AbstractController{
     @AesService
     @RequestMapping(value = "/api/config", method = RequestMethod.POST)
     public @ResponseBody
-    String queryConfig() {
+    String queryConfig(@RequestAttribute(name="data") JSONObject requestParam) {
+
+        String checkVideoIdResult = checkVideoId(requestParam);
+
+        if(null != checkVideoIdResult){
+            return checkVideoIdResult;
+        }
+
+        final String videoId = requestParam.getString(REQUEST_FIELD_VIDEO_ID);
 
         ConfigResponseDTO res = new ConfigResponseDTO();
 
@@ -109,6 +124,14 @@ public class ApiController extends AbstractController{
         res.setResMsg(Constants.COMMONSUCCESSMSG);
 
         log.info("ApiController.queryConfig ==> res is {}",gson.toJson(res));
+
+        //视频播放总次数统计
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                statisticsService.collectVideoPlayTimes(videoId,1L);
+            }
+        }).start();
 
         return commonAesService.encryResult(res);
     }
@@ -158,7 +181,7 @@ public class ApiController extends AbstractController{
 
         if(null == requestParam.get(REQUEST_FIELD_VIDEO_ID)){
 
-            LaunchApiQueryInfoResponseDTO resDTO = new LaunchApiQueryInfoResponseDTO();
+            CommonResponseDTO resDTO = new CommonResponseDTO();
 
             resDTO.setResCode(Constants.FAILCODE);
 
@@ -214,13 +237,11 @@ public class ApiController extends AbstractController{
         }
         String videoId = paramJson.get(REQUEST_FIELD_VIDEO_ID).toString();
 
-        String pre = DateUtil.toShortDateString(new Date());
-
         LaunchApiQueryInfoResponseDTO resDTO = null;
 
         try {
 
-            resDTO = apiService.queryInfoByVideoId(pre.concat(videoId));
+            resDTO = apiService.queryInfoByVideoId(videoId);
         }catch (Exception e){
 
             log.error("ApiController.queryLaunchInfoAes ==> query error!!",e);
@@ -236,6 +257,12 @@ public class ApiController extends AbstractController{
 
         return commonAesService.encryResult(resDTO);
 
+    }
+
+    @RequestMapping("/api/system/evictAllLaunchPlanCache")
+    public @ResponseBody String evictAllLaunchPlanCache(@RequestParam boolean redis){
+        launchPlanCache.removeAll(redis);
+        return "清除缓存成功.";
     }
 
 }

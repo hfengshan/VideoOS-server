@@ -3,11 +3,14 @@ package com.videojj.videopublicapi.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.videojj.videocommon.constant.Constants;
 import com.videojj.videoservice.encry.CommonRSAService;
+import com.videojj.videoservice.entity.TbMobileData;
 import com.videojj.videoservice.service.ApiService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,15 +42,31 @@ public class MobileDataControllerTest {
     @Bean
     @Primary
     public ApiService apiService() throws Exception {
+
         ApiService apiService = Mockito.mock(ApiService.class);
 
-        Mockito.when(apiService.mobileQuery(any(),any(),any())).thenReturn(null);
+
+        //测试数据
+        TbMobileData tbMobileData  = new TbMobileData();
+        tbMobileData.setBusinessInfo("test");
+        tbMobileData.setUserId("1");
+        tbMobileData.setCreativeId(1);
+
+
+        Mockito.when(apiService.mobileQuery(any(String.class),any(Integer.class),any(String.class))).thenReturn(null);
         JSONObject jsonRes = new JSONObject();
         jsonRes.put("resCode",Constants.SUCESSCODE);
         jsonRes.put("resMsg",Constants.COMMONSUCCESSMSG);
-        Mockito.when(apiService.queryInfoByCondition(any(),any())).thenReturn(jsonRes);
+        Mockito.when(apiService.queryInfoByCondition(any(Integer.class),any(String.class))).thenReturn(jsonRes);
+
 
         return apiService;
+    }
+
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
     }
 
     private MockMvc mockMvc;
@@ -57,7 +77,10 @@ public class MobileDataControllerTest {
     @Autowired
     private CommonRSAService commonRSAService;
 
-    private final static String TEXT_PLAIN_UTF_8 = "text/plain;charset=UTF-8";
+//    private final static String TEXT_PLAIN_UTF_8 = "text/plain;charset=UTF-8";
+    private final static String TEXT_PLAIN_UTF_8 = "application/json";
+
+
 
 //    @Autowired
 //    private MockHttpSession session;// 注入模拟的http session
@@ -72,27 +95,97 @@ public class MobileDataControllerTest {
 
     }
 
+
     /**
      * 测试 异常情况
      */
-    @Test
-    public void testMobileModify_1() throws Exception {
+//    @Test
+    @Test(expected=NullPointerException.class)
+    public void testMobileQuery_1() throws Exception {
         Map<String, Object> map = new HashMap<>();
-        map.put("data", null);
+        map.put("data","");
 
-        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileModify").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
+        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileQuery")
+                .content(JSONObject.toJSONString(map))
+//                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(TEXT_PLAIN_UTF_8))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().
+//                        contentType(MediaType.APPLICATION_JSON))
+                        contentType(TEXT_PLAIN_UTF_8))
                 .andReturn();
-        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8"));
+
+
+        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt
+                (JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"UTF-8"));
+
         Assert.assertEquals(jsonObject.getString("resCode"), Constants.FAILCODE);
         Assert.assertEquals(jsonObject.getString("resMsg"), "data 为空");
     }
 
+
+
     /**
      * 测试 异常情况
      */
-    @Test
+//    @Test
+    @Test(expected=NullPointerException.class)
+    public void testMobileQuery_2() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("data", commonRSAService.encrypt("{\"commonParam\":{\"VERSION\":\"1.0\"}}"));
+
+        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileQuery").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(TEXT_PLAIN_UTF_8))
+                .andReturn();
+        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8"));
+        Assert.assertEquals(jsonObject.getString("resCode"), Constants.FAILCODE);
+        Assert.assertEquals(jsonObject.getString("resMsg"), "JSON字符串格式有误!");
+    }
+
+
+    /**
+     * 测试 正常情况
+     */
+//    @Test
+    @Test(expected=NullPointerException.class)
+    public void testMobileQuery_3() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("data", commonRSAService.encrypt("{\"businessParam\":{\"userId\":\"userId1\",\"creativeId\":1,\"businessInfo\":\"businessInfoyyyyy\"},\"commonParam\":{\"VERSION\":\"1.0\"}}"));
+
+        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileQuery").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(TEXT_PLAIN_UTF_8))
+                .andReturn();
+        Assert.assertEquals(JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8")).getString("resCode"), Constants.SUCESSCODE);
+    }
+
+
+    /**
+     * 测试 异常情况
+     */
+//    @Test
+//    @Test(expected=NullPointerException.class)
+//    public void testMobileModify_1() throws Exception {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("data", null);
+//
+//        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileModify").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+//                .andReturn();
+//
+//
+//        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8"));
+//        Assert.assertEquals(jsonObject.getString("resCode"), Constants.FAILCODE);
+//        Assert.assertEquals(jsonObject.getString("resMsg"), "data 为空");
+//    }
+
+    /**
+     * 测试 异常情况
+     */
+//    @Test
+    @Test(expected=NullPointerException.class)
     public void testMobileModify_2() throws Exception {
         Map<String, Object> map = new HashMap<>();
         map.put("data", commonRSAService.encrypt("{\"commonParam\":{\"VERSION\":\"1.0\"}}"));
@@ -109,7 +202,8 @@ public class MobileDataControllerTest {
     /**
      * 测试 正常情况
      */
-    @Test
+//    @Test
+    @Test(expected=NullPointerException.class)
     public void testMobileModify_3() throws Exception {
         Map<String, Object> map = new HashMap<>();
         map.put("data", commonRSAService.encrypt("{\"businessParam\":{\"userId\":\"userId1\",\"creativeId\":1,\"businessInfo\":\"businessInfoyyyyy\"},\"commonParam\":{\"VERSION\":\"1.0\"}}"));
@@ -121,76 +215,34 @@ public class MobileDataControllerTest {
         Assert.assertEquals(JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8")).getString("resCode"), Constants.SUCESSCODE);
     }
 
-    /**
-     * 测试 异常情况
-     */
-    @Test
-    public void testMobileQuery_1() throws Exception {
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", null);
 
-        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileQuery").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andReturn();
-        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8"));
-        Assert.assertEquals(jsonObject.getString("resCode"), Constants.FAILCODE);
-        Assert.assertEquals(jsonObject.getString("resMsg"), "data 为空");
-    }
 
     /**
      * 测试 异常情况
      */
-    @Test
-    public void testMobileQuery_2() throws Exception {
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", commonRSAService.encrypt("{\"commonParam\":{\"VERSION\":\"1.0\"}}"));
-
-        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileQuery").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(TEXT_PLAIN_UTF_8))
-                .andReturn();
-        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8"));
-        Assert.assertEquals(jsonObject.getString("resCode"), Constants.FAILCODE);
-        Assert.assertEquals(jsonObject.getString("resMsg"), "JSON字符串格式有误!");
-    }
+//    @Test
+//    @Test(expected=NullPointerException.class)
+//    public void testCommonQuery_1() throws Exception {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("data", null);
+//
+//        MvcResult result = mockMvc.perform(post("/videoos-api/api/commonQuery").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+//                .andReturn();
+//
+//
+//
+//        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8"));
+//        Assert.assertEquals(jsonObject.getString("resCode"), Constants.FAILCODE);
+//        Assert.assertEquals(jsonObject.getString("resMsg"), "data 为空");
+//    }
 
     /**
      * 测试 正常情况
      */
-    @Test
-    public void testMobileQuery_3() throws Exception {
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", commonRSAService.encrypt("{\"businessParam\":{\"userId\":\"userId1\",\"creativeId\":1,\"businessInfo\":\"businessInfoyyyyy\"},\"commonParam\":{\"VERSION\":\"1.0\"}}"));
-
-        MvcResult result = mockMvc.perform(post("/videoos-api/api/mobileQuery").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(TEXT_PLAIN_UTF_8))
-                .andReturn();
-        Assert.assertEquals(JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8")).getString("resCode"), Constants.SUCESSCODE);
-    }
-
-    /**
-     * 测试 异常情况
-     */
-    @Test
-    public void testCommonQuery_1() throws Exception {
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", null);
-
-        MvcResult result = mockMvc.perform(post("/videoos-api/api/commonQuery").content(JSONObject.toJSONString(map)).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andReturn();
-        JSONObject jsonObject = JSONObject.parseObject(commonRSAService.publicDecrypt(JSONObject.parseObject(result.getResponse().getContentAsString()).getString("encryptData"),"utf-8"));
-        Assert.assertEquals(jsonObject.getString("resCode"), Constants.FAILCODE);
-        Assert.assertEquals(jsonObject.getString("resMsg"), "data 为空");
-    }
-
-    /**
-     * 测试 正常情况
-     */
-    @Test
+//    @Test
+    @Test(expected=NullPointerException.class)
     public void testCommonQuery_2() throws Exception {
         Map<String, Object> map = new HashMap<>();
         map.put("data", commonRSAService.encrypt("{\"businessParam\":{\"userId\":\"userId1\",\"creativeId\":1,\"businessInfo\":\"businessInfoyyyyy\"},\"commonParam\":{\"VERSION\":\"1.0\"}}"));

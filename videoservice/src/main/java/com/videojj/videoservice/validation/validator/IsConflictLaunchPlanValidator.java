@@ -12,7 +12,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * 素材未使用通过验证url 验证器
+ * 投放计划冲突 验证器
  *
  * @author zhangzhewen
  * @date 2018/11/1
@@ -31,7 +31,8 @@ public class IsConflictLaunchPlanValidator implements ConstraintValidator<IsConf
     public boolean isValid(AddLaunchPlanRequestDTO value, ConstraintValidatorContext context) {
         try {
             /**如果与多个冲突，是逗号分割的字符串*/
-            String launchPlanName = checkService.checkLaunchPlan(value);
+            String launchPlanName = checkService.checkLaunchPlan(value.getLaunchVideoId(), value.getLaunchDateStart(),
+                    value.getLaunchDateEnd(), value.getLaunchTimeType(), value.getLaunchTime(), value.getLaunchLenTime());
             if (StringUtils.isNotEmpty(launchPlanName)) {
                 if (context instanceof HibernateConstraintValidatorContext) {
                     context.unwrap(HibernateConstraintValidatorContext.class).addMessageParameter("launchPlanName", launchPlanName);

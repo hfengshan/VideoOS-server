@@ -75,7 +75,6 @@ public class CreativeController {
     }
 
 
-
     @PermissionService
     @RequestMapping(value = "/videoos/creative/modifyUpload", method = RequestMethod.POST)
     public @ResponseBody

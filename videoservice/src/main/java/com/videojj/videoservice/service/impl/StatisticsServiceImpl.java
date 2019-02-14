@@ -39,10 +39,10 @@ public class StatisticsServiceImpl implements StatisticsService {
     private TbLaunchPlanMapper tbLaunchPlanMapper;
 
     private static final String REDIS_PREFIX = "VIDEOOS_STATISTICS_USER_BEHAVIOR";
-    private static final String REDIS_COUNT_PREFIX = "VIDEOOS_STATISTICS_USER_BEHAVIOR_COUNT";
+    private static final String REDIS_COUNT_PREFIX = "VIDEOOS_STATISTICS_VIDEO_PLAY_TIMES_COUNT";
     private static final String REDIS_SEPARATOR = "-----";
     private static final String TYPE_SEPARATOR = "-";
-    private static final String TYPE_COUNT_KEY = "count";
+    private static final String REDIS_FUZZY_QUERY_SYMBOL = "*";
 
 
 
@@ -53,7 +53,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         UserBehaviorStatisticsDTO userBehaviorStatisticsDTO = new UserBehaviorStatisticsDTO();
 
-        String videoIdCondition = "*";
+        String videoIdCondition = REDIS_FUZZY_QUERY_SYMBOL;
 
         //视频播放次数
         int showExposureCount = 0;
@@ -91,7 +91,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             Pipeline pipeline = jedis.pipelined();
             try {
                 HashMap<String, List<Response<Set<String>>>> typeAndRedisKeysMap = new HashMap<String, List<Response<Set<String>>>>() {{
-                    put(TYPE_COUNT_KEY, new ArrayList<>());
                     put(UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.SHOW_EXPOSURE.getValue().toString(), new ArrayList<>());
                     put(UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.CLICK_EXPOSURE.getValue().toString(), new ArrayList<>());
                     put(UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.CLICK_EVENT.getValue().toString(), new ArrayList<>());
@@ -100,7 +99,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                     put(UserBehaviorStatisticsTypeEnum.HOTSPOT.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.CLICK_EVENT.getValue().toString(), new ArrayList<>());
                 }};
                 HashMap<String, List<Response<String>>> typeAndRedisValueMap = new HashMap<String, List<Response<String>>>() {{
-                    put(TYPE_COUNT_KEY, new ArrayList<>());
                     put(UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.SHOW_EXPOSURE.getValue().toString(), new ArrayList<>());
                     put(UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.CLICK_EXPOSURE.getValue().toString(), new ArrayList<>());
                     put(UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.CLICK_EVENT.getValue().toString(), new ArrayList<>());
@@ -110,7 +108,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }};
                 for (String day : DateUtil.getYyyymmddSpan(startDate, endDate)) {
                     if (launchPlanIdListCondition.size() == 0) {
-                        setRedisKeysWithPipleline(typeAndRedisKeysMap, pipeline, videoIdCondition, "*", day);
+                        setRedisKeysWithPipleline(typeAndRedisKeysMap, pipeline, videoIdCondition, REDIS_FUZZY_QUERY_SYMBOL, day);
                     } else {
                         for (Integer launchPlanId : launchPlanIdListCondition) {
                             setRedisKeysWithPipleline(typeAndRedisKeysMap, pipeline, videoIdCondition, launchPlanId.toString(), day);
@@ -127,7 +125,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
                 pipeline.sync();
                 for (Map.Entry<String, List<Response<String>>> entry : typeAndRedisValueMap.entrySet()) {
-                    showExposureCount += calcCountFromRedis(entry, TYPE_COUNT_KEY);
                     infoShowExposureCount += calcCountFromRedis(entry, UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.SHOW_EXPOSURE.getValue().toString());
                     infoClickExposureCount += calcCountFromRedis(entry, UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.CLICK_EXPOSURE.getValue().toString());
                     infoClickEventCount += calcCountFromRedis(entry, UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.CLICK_EVENT.getValue().toString());
@@ -139,18 +136,51 @@ public class StatisticsServiceImpl implements StatisticsService {
                 jedisPool.returnResource(jedis);
             }
         }
+
+        //计算视频总播放次数
+        Jedis jedis = jedisPool.getResource();
+        Pipeline pipeline = jedis.pipelined();
+        try {
+            List<Response<Set<String>>> videoPlayTimesRedisKeyResponseList = new ArrayList<>();
+            List<Response<String>> videoPlayTimesRedisValueResponseList = new ArrayList<>();
+            if(REDIS_FUZZY_QUERY_SYMBOL.equals(videoIdCondition)){
+                for (String day : DateUtil.getYyyymmddSpan(startDate, endDate)) {
+                    videoPlayTimesRedisKeyResponseList.add(pipeline.keys(buildVideoPlayTimesRedisCountKey(REDIS_FUZZY_QUERY_SYMBOL,day)));
+                }
+                pipeline.sync();
+                for (Response<Set<String>> set : videoPlayTimesRedisKeyResponseList){
+                    for(String redisKey : set.get()){
+                        videoPlayTimesRedisValueResponseList.add(pipeline.get(redisKey));
+                    }
+                }
+            }else {
+                for (String day : DateUtil.getYyyymmddSpan(startDate, endDate)) {
+                    videoPlayTimesRedisValueResponseList.add(pipeline.get(buildVideoPlayTimesRedisCountKey(videoIdCondition,day)));
+                }
+            }
+            pipeline.sync();
+            for (Response<String> value : videoPlayTimesRedisValueResponseList){
+                if(StringUtils.isNotEmpty(value.get())){
+                    showExposureCount += Integer.parseInt(value.get());
+                }
+            }
+        }finally{
+            jedisPool.returnResource(jedis);
+        }
+
         userBehaviorStatisticsDTO.setShowExposureCount(showExposureCount);
         userBehaviorStatisticsDTO.setInfoShowExposureCount(infoShowExposureCount);
         userBehaviorStatisticsDTO.setInfoClickExposureCount(infoClickExposureCount);
         userBehaviorStatisticsDTO.setInfoClickEventCount(infoClickEventCount);
+        userBehaviorStatisticsDTO.setInfoClickRate(infoClickExposureCount==0?0:((int)(infoClickEventCount*100/infoClickExposureCount*1.0)));
         userBehaviorStatisticsDTO.setHotspotShowExposureCount(hotspotShowExposureCount);
         userBehaviorStatisticsDTO.setHotspotClickExposureCount(hotspotClickExposureCount);
         userBehaviorStatisticsDTO.setHotspotClickEventCount(hotspotClickEventCount);
+        userBehaviorStatisticsDTO.setHotspotClickRate(hotspotClickExposureCount==0?0:((int)(hotspotClickEventCount*100/hotspotClickExposureCount*1.0)));
         return userBehaviorStatisticsDTO;
     }
 
     private void setRedisKeysWithPipleline(HashMap<String, List<Response<Set<String>>>> typeAndRedisKeysMap, Pipeline pipeline, String videoIdCondition, String launchPlanIdCondition, String day) {
-        typeAndRedisKeysMap.get(TYPE_COUNT_KEY).add(pipeline.keys(buildUserBehaviorRedisCountKey(videoIdCondition, launchPlanIdCondition, day)));
         typeAndRedisKeysMap.get(UserBehaviorStatisticsTypeEnum.INFO.getValue().toString() + TYPE_SEPARATOR + UserBehaviorStatisticsEventTypeEnum.SHOW_EXPOSURE.getValue().toString()).add(
                 pipeline.keys(buildUserBehaviorRedisKey(
                         videoIdCondition, launchPlanIdCondition, day,
@@ -220,13 +250,11 @@ public class StatisticsServiceImpl implements StatisticsService {
         return redisKey;
     }
 
-    private String buildUserBehaviorRedisCountKey(String videoId, String launchPlanId, String day) {
+    private String buildVideoPlayTimesRedisCountKey(String videoId, String day) {
         videoId = videoId.trim();
-        launchPlanId = launchPlanId.trim();
         day = day.trim();
         String redisCountKey = REDIS_COUNT_PREFIX
                 + REDIS_SEPARATOR + videoId
-                + REDIS_SEPARATOR + launchPlanId
                 + REDIS_SEPARATOR + day;
         return redisCountKey;
     }
@@ -240,12 +268,29 @@ public class StatisticsServiceImpl implements StatisticsService {
         videoId = videoId.trim();
         String today = DateUtil.toShortDateString(new Date());
         String redisKey = buildUserBehaviorRedisKey(videoId, launchPlanId.toString(), today, userBehaviorStatisticsTypeEnum.getValue().toString(), userBehaviorStatisticsEventTypeEnum.getValue().toString());
-        String redisCountKey = buildUserBehaviorRedisCountKey(videoId, launchPlanId.toString(), today);
 
         Jedis jedis = jedisPool.getResource();
         try {
             jedis.incr(redisKey);
-            jedis.incr(redisCountKey);
+            log.info("StatisticsServiceImpl.collectUserBehavior()  ----> {} incr 1 from redis.",redisKey);
+        } finally {
+            jedisPool.returnResource(jedis);
+        }
+    }
+
+    @Override
+    public void collectVideoPlayTimes(String videoId, Long times) {
+        Assert.notNull(videoId, "videoId不能为null");
+        Assert.notNull(times, "times不能为null");
+
+        videoId = videoId.trim();
+        String today = DateUtil.toShortDateString(new Date());
+        String redisKey = buildVideoPlayTimesRedisCountKey(videoId,today);
+
+        Jedis jedis = jedisPool.getResource();
+        try {
+            jedis.incrBy(redisKey,times);
+            log.info("StatisticsServiceImpl.collectVideoPlayTimes()  ----> {} incr {} from redis.",redisKey,times);
         } finally {
             jedisPool.returnResource(jedis);
         }

@@ -147,7 +147,7 @@ public class CreativeServiceImpl implements CreativeService{
 
             InputStream in = multipartTemplateFile.getInputStream();
 
-            if(fileName.endsWith(".gif")||fileName.endsWith(".jpg")||fileName.endsWith(".png")) {
+            if(fileName.endsWith(".gif")||fileName.endsWith(".jpg")||fileName.endsWith(".png")||fileName.endsWith(".jpeg")) {
                 // 此处是文件流的处理
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];
@@ -280,6 +280,8 @@ public class CreativeServiceImpl implements CreativeService{
         TbCreativeCriteria.Criteria creativeCri = qryParam.createCriteria();
 
         creativeCri.andMaterialNameEqualTo(request.getCreativeName());
+
+        creativeCri.andIsDeletedEqualTo(IsDeletedEnum.NO.getValue());
 
         List<TbCreative> tbCreatives = tbCreativeMapper.selectByParam(qryParam);
 
@@ -501,6 +503,7 @@ public class CreativeServiceImpl implements CreativeService{
         TbCreativeCriteria qryParam = new TbCreativeCriteria();
         TbCreativeCriteria.Criteria creativeCri = qryParam.createCriteria();
         creativeCri.andMaterialNameEqualTo(request.getCreativeName());
+        creativeCri.andIsDeletedEqualTo(IsDeletedEnum.NO.getValue());
         List<TbCreative> tbCreatives = tbCreativeMapper.selectByParam(qryParam);
 
         if(!CollectionUtils.isEmpty(tbCreatives)){

@@ -1,12 +1,14 @@
 package com.videojj.videoportal.controller;
 
 import com.videojj.videocommon.dto.base.BaseResponseDTO;
+import com.videojj.videocommon.exception.ServiceException;
 import com.videojj.videoservice.annotation.PageControllerService;
 import com.videojj.videoservice.annotation.PermissionService;
 import com.videojj.videoservice.dto.*;
 import com.videojj.videoservice.service.CheckService;
 import com.videojj.videoservice.service.LaunchPlanService;
 import com.videojj.videoservice.util.BaseSuccessResultUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,9 @@ public class LaunchPlanController {
     @Resource
     private LaunchPlanService launchPlanService;
 
+    @Resource
+    private CheckService checkService;
+
     @PermissionService
     @RequestMapping(value = "/videoos/launchplan/add", method = RequestMethod.POST)
     public @ResponseBody
@@ -40,6 +45,13 @@ public class LaunchPlanController {
     @RequestMapping(value = "/videoos/launchplan/launch", method = RequestMethod.POST)
     public @ResponseBody
     BaseResponseDTO launch(@RequestBody @Validated LaunchLaunchPlanRequestDTO request) {
+
+        LaunchPlanDetailInfoResponseDTO value = launchPlanService.queryDetailInfoById(request.getLaunchPlanId());
+        String launchPlanName = checkService.checkLaunchPlan(value.getLaunchVideoId(), value.getLaunchDateStart(),
+                value.getLaunchDateEnd(), value.getLaunchTimeType(), value.getLaunchTime(), value.getLaunchLenTime());
+        if (StringUtils.isNotEmpty(launchPlanName)) {
+            throw new ServiceException("后端校验失败，该投放计划与投放计划"+launchPlanName+"时间冲突，无法投放，需下线被冲突的投放计划才行。");
+        }
 
         launchPlanService.launchLaunchPlanService(request);
 

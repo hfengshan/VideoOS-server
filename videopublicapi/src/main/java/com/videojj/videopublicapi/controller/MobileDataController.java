@@ -139,7 +139,11 @@ public class MobileDataController extends AbstractController{
     public @ResponseBody
     String commonQuery(@RequestAttribute(name="data") JSONObject requestParam) throws Exception{
 
-        JSONObject data = JSONObject.parseObject(requestParam.get(REQUEST_FIELD_BUSINESS_PARAM).toString());
+        String businessParam = requestParam.get(REQUEST_FIELD_BUSINESS_PARAM).toString();
+
+        log.info("MobileDataController.commonQuery ---->  businessParam: {}",businessParam);
+
+        JSONObject data = JSONObject.parseObject(businessParam);
 
         Integer creativeId = Integer.parseInt(data.get(REQUEST_FIELD_CREATIVE_ID).toString());
 

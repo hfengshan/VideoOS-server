@@ -17,6 +17,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Pipeline;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -38,15 +41,20 @@ public class LaunchPlanCacheImpl implements LaunchPlanCache{
     @Resource
     private RedisManager redisManager;
 
+    @Resource
+    private JedisPool jedisPool;
+
+    private static final String REDIS_PREFIX = "LAUNCH_PLAN_CACHE_";
+
     @Override
     @Cacheable(value = "plan", key = "#videoId")
     public List<LaunchApiQueryInfoResponseDTO.LaunchInfo> selectByVideoId(Integer id, String videoId, Date nowDate, Byte launchTimeType) {
 
         log.info("LaunchPlanCacheImpl.selectByVideoId ==> it will get data from database....videoid is {}",videoId);
 
-//        String pre = DateUtil.toShortDateString(new Date());
+        String pre = DateUtil.toShortDateString(new Date());
 
-        byte[] value = redisManager.get(videoId.getBytes());
+        byte[] value = redisManager.get(REDIS_PREFIX.concat(pre).concat(videoId).getBytes());
 
         List<LaunchApiQueryInfoResponseDTO.LaunchInfo> launchInfoList = null;
 
@@ -70,11 +78,9 @@ public class LaunchPlanCacheImpl implements LaunchPlanCache{
             return launchInfoList;
         }else {
 
-            String realVideoId = videoId.substring(10,videoId.length());
+            log.info("LaunchPlanCacheImpl.selectByVideoId ==> it will query from database!!videoId is {}",videoId);
 
-            log.info("LaunchPlanCacheImpl.selectByVideoId ==> it will query from database!!videoId is {}",realVideoId);
-
-            List<TbLaunchPlanApiInfoExt> resultList = tbLaunchPlanMapper.selectByVideoId(id, realVideoId, nowDate, launchTimeType);
+            List<TbLaunchPlanApiInfoExt> resultList = tbLaunchPlanMapper.selectByVideoId(id, videoId, nowDate, launchTimeType);
 
             if(CollectionUtils.isNotEmpty(resultList)) {
 
@@ -93,7 +99,7 @@ public class LaunchPlanCacheImpl implements LaunchPlanCache{
 
                 log.info("LaunchPlanCacheImpl.selectByVideoId ==> queryResult is {}",JSONArray.toJSONString(resultList));
 
-                redisManager.set(videoId.getBytes(), JSONArray.toJSONString(resultList).getBytes(), 86400);
+                redisManager.set(REDIS_PREFIX.concat(pre).concat(videoId).getBytes(), JSONArray.toJSONString(resultList).getBytes(), 86400);
             }
             return launchInfoList;
         }
@@ -104,6 +110,31 @@ public class LaunchPlanCacheImpl implements LaunchPlanCache{
     public void remove(String videoId) {
 
         log.info("LaunchPlanCacheImpl.remove ==> remove from cache, videoId: {}", videoId);
+        Jedis jedis = jedisPool.getResource();
+        try{
+            jedis.del(REDIS_PREFIX.concat(DateUtil.toShortDateString(new Date())).concat(videoId));
+        }finally {
+            jedisPool.returnResource(jedis);
+        }
+
+    }
+
+    @Override
+    @CacheEvict(value = "plan", allEntries = true)
+    public void removeAll(boolean redis) {
+        if(redis){
+            //删除redis中的缓存
+            Jedis jedis = jedisPool.getResource();
+            Pipeline pipeline = jedis.pipelined();
+            try{
+                for(String key : jedis.keys(REDIS_PREFIX.concat(DateUtil.toShortDateString(new Date())).concat("*"))){
+                    pipeline.del(key);
+                }
+                pipeline.sync();
+            }finally {
+                jedisPool.returnResource(jedis);
+            }
+        }
     }
 
     //TODO
@@ -118,7 +149,10 @@ public class LaunchPlanCacheImpl implements LaunchPlanCache{
 
         if(CollectionUtils.isNotEmpty(resultList)) {
 
-            redisManager.set(pre.concat(videoId).getBytes(), JSONArray.toJSONString(resultList).getBytes(), 86400);
+            redisManager.set(REDIS_PREFIX.concat(pre).concat(videoId).getBytes(), JSONArray.toJSONString(resultList).getBytes(), 86400);
+        }else{
+
+            redisManager.del(REDIS_PREFIX.concat(pre).concat(videoId).getBytes());
         }
 
         return resultList;
@@ -129,9 +163,7 @@ public class LaunchPlanCacheImpl implements LaunchPlanCache{
     @CachePut(value = "plan", key = "#videoId")
     public List<TbLaunchPlanApiInfoExt> updateLocalCache(String videoId) {
 
-        String realVideoId = videoId.substring(10,videoId.length());
-
-        List<TbLaunchPlanApiInfoExt> resultList = tbLaunchPlanMapper.selectByVideoId(null, realVideoId, new Date(), LaunchTimeTypeEnum.VIDIO_TIME.getValue());
+        List<TbLaunchPlanApiInfoExt> resultList = tbLaunchPlanMapper.selectByVideoId(null, videoId, new Date(), LaunchTimeTypeEnum.VIDIO_TIME.getValue());
 
         return resultList;
     }

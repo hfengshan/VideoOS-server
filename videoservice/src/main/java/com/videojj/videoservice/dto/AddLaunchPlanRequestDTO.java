@@ -55,6 +55,8 @@ public class AddLaunchPlanRequestDTO {
 
     private List<MonitorLinkDTO> infoTrackLink;
 
+    private String infoTrackLinkTitle;
+
     private String username;
 
 

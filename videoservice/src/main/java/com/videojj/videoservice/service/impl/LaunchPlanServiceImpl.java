@@ -16,6 +16,8 @@ import com.videojj.videoservice.emqttd.MqttService;
 import com.videojj.videoservice.entity.*;
 import com.videojj.videoservice.enums.*;
 import com.videojj.videoservice.handler.SendEmqService;
+import com.videojj.videoservice.mns.impl.MnsConsumerImpl;
+import com.videojj.videoservice.mns.impl.MnsProducerImpl;
 import com.videojj.videoservice.service.CheckService;
 import com.videojj.videoservice.service.LaunchPlanService;
 import com.videojj.videoservice.service.OperationLogService;
@@ -97,6 +99,14 @@ public class LaunchPlanServiceImpl implements LaunchPlanService{
     @Resource
     private RabbitTemplate myRabbitmqTemplate;
 
+    @Resource
+    private MnsProducerImpl mnsProducer;
+
+    @Resource
+    private MnsConsumerImpl mnsConsumer;
+
+
+
     private static Gson gson = new Gson();
 
     public static void main(String[] args) {
@@ -157,6 +167,9 @@ public class LaunchPlanServiceImpl implements LaunchPlanService{
         }
         if(CollectionUtils.isNotEmpty(request.getInfoTrackLink())){
             tbLaunchPlanOperation.setInfoTrackLink(gson.toJson(request.getInfoTrackLink()));
+        }
+        if(StringUtils.isNotEmpty(request.getInfoTrackLinkTitle())){
+            tbLaunchPlanOperation.setInfoTrackLinkTitle(request.getInfoTrackLinkTitle());
         }
         if(tbLaunchPlanOperation.getLaunchTimeType().intValue() != LaunchTimeTypeEnum.REAL_TIME.getValue().intValue()){
             tbLaunchPlanOperation.setStatus(LaunchStatusEnum.PASS.getValue());
@@ -270,7 +283,12 @@ public class LaunchPlanServiceImpl implements LaunchPlanService{
                 launchPlanCache.updateRedis(tbLaunchPlan.getLaunchVideoId());
                 //TODO
 //                mqttService.pushVideoId("videoIdTopic", tbLaunchPlan.getLaunchVideoId());
-                myRabbitmqTemplate.convertAndSend("fanoutExchange","",tbLaunchPlan.getLaunchVideoId());
+
+                //生产消息
+                mnsProducer.SendMessage(tbLaunchPlan.getLaunchVideoId());
+//                myRabbitmqTemplate.convertAndSend("fanoutExchange","",tbLaunchPlan.getLaunchVideoId());
+
+
             }
             return;
         }
@@ -427,6 +445,7 @@ public class LaunchPlanServiceImpl implements LaunchPlanService{
         res.setLaunchVideoId(tbLaunchPlanExt.getLaunchVideoId());
         res.setHotspotTrackLink(gson.fromJson(tbLaunchPlanExt.getHotspotTrackLink(),new TypeToken<List<MonitorLinkDTO>>(){}.getType()));
         res.setInfoTrackLink(gson.fromJson(tbLaunchPlanExt.getInfoTrackLink(),new TypeToken<List<MonitorLinkDTO>>(){}.getType()));
+        res.setInfoTrackLinkTitle(tbLaunchPlanExt.getInfoTrackLinkTitle());
 
         JSONArray array = JSONArray.parseArray(tbLaunchPlanExt.getLaunchTime());
         List<List<String>> launchTime = new ArrayList<>();
@@ -487,7 +506,9 @@ public class LaunchPlanServiceImpl implements LaunchPlanService{
 
                 //TODO
 //                mqttService.pushVideoId("videoIdTopic",tbLaunchPlan.getLaunchVideoId());
-                myRabbitmqTemplate.convertAndSend("fanoutExchange","",tbLaunchPlan.getLaunchVideoId());
+                //生产消息
+                mnsProducer.SendMessage(tbLaunchPlan.getLaunchVideoId());
+//                myRabbitmqTemplate.convertAndSend("fanoutExchange","",tbLaunchPlan.getLaunchVideoId());
 
             }
 

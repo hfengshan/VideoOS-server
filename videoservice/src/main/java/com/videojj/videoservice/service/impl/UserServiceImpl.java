@@ -86,23 +86,16 @@ public class UserServiceImpl implements UserService {
         }
 
         TbUser param = new TbUser();
-
         param.setUsername(request.getUsername());
-
         param.setCreator(username);
-
         param.setModifier(username);
-
         param.setIsDeleted(IsDeletedEnum.NO.getValue());
 
         String encodePassword = MD5Util.EncoderByMd5(request.getPassword()).toLowerCase();
 
         param.setPassword(encodePassword);
-
         param.setRoleId(request.getRoleId());
-
         param.setGmtCreated(new Date());
-
         param.setGmtModified(new Date());
         try {
 
@@ -125,31 +118,22 @@ public class UserServiceImpl implements UserService {
         if(!tbUser.getUsername().equals(request.getUsername())) {
 
             TbUserCriteria qryParam = new TbUserCriteria();
-
             TbUserCriteria.Criteria userCri = qryParam.createCriteria();
-
 //            userCri.andIsDeletedEqualTo(IsDeletedEnum.NO.getValue());
-
             userCri.andUsernameEqualTo(request.getUsername());
             /**查询更改后的用户名，如果存在，即时被删除，也是不允许的*/
             List<TbUser> userList = tbUserMapper.selectByParam(qryParam);
-
             if (CollectionUtils.isNotEmpty(userList)) {
-
                 BaseResponseDTO res = new BaseResponseDTO();
 
                 res.setResMsg("用户名已存在");
-
                 res.setResCode(Constants.FAILCODE);
-
                 return res;
             }
         }
 
         TbUser param = new TbUser();
-
         param.setRoleId(request.getRoleId());
-
         if(null != request.getPassword()) {
 
             String encodePassword = MD5Util.EncoderByMd5(request.getPassword()).toLowerCase();
@@ -157,11 +141,8 @@ public class UserServiceImpl implements UserService {
             param.setPassword(encodePassword);
         }
         param.setUsername(request.getUsername());
-
         param.setModifier(username);
-
         param.setId(request.getUserId());
-
         transactionTemplate.execute(new TransactionCallback<Boolean>() {
 
             @Override
@@ -188,28 +169,19 @@ public class UserServiceImpl implements UserService {
     public UserPageInfoResponseDTO queryPageInfoByParam(QueryUserRequestDTO param) {
 
         int limitstart=(param.getCurrentPage()-1) * param.getPageSize();
-
         QueryUserParamBo paramBo=new QueryUserParamBo(limitstart, param.getPageSize());
-
         if(null != param.getQryusername()){
 
             paramBo.setUsername(param.getQryusername());
         }
 
         List<TbUserExt> tbUserList =  tbUserMapper.selectByParamWithPage(paramBo);
-
         TbUserCriteria countParam = new TbUserCriteria();
-
         TbUserCriteria.Criteria userCriteria = countParam.createCriteria();
-
         userCriteria.andIsDeletedEqualTo(IsDeletedEnum.NO.getValue());
-
         int allcount = tbUserMapper.countByParam(countParam);
-
         UserPageInfoResponseDTO userPageInfoResponseDTO = new UserPageInfoResponseDTO();
-
         userPageInfoResponseDTO.setResCode(Constants.SUCESSCODE);
-
         userPageInfoResponseDTO.setResMsg(Constants.COMMONSUCCESSMSG);
 
         if (allcount == 0){
@@ -268,11 +240,8 @@ public class UserServiceImpl implements UserService {
         TbUser param = new TbUser();
 
         param.setId(request.getUserId());
-
         param.setIsDeleted(IsDeletedEnum.YES.getValue());
-
         param.setModifier(username);
-
         transactionTemplate.execute(new TransactionCallback<Boolean>() {
 
             @Override
@@ -282,10 +251,8 @@ public class UserServiceImpl implements UserService {
                     String userName = tbUserMapper.selectByPrimaryKey(request.getUserId()).getUsername();
 
                     tbUserMapper.updateByPrimaryKeySelective(param);
-
                     // 记录操作日志
                     operationLogService.writeOperationLog_104(userName);
-
                     redisSessionDao.removeSession(userName);
 
                     }catch (Exception e){
@@ -313,17 +280,13 @@ public class UserServiceImpl implements UserService {
         LoginBo loginBo = new LoginBo();
 
         loginBo.setRoleId(userAndRoleInfo.getRoleId());
-
         loginBo.setRoleName(userAndRoleInfo.getRoleName());
 
         if(StringUtils.isNotEmpty(userAndRoleInfo.getAuths())) {
 
             String authsStr = userAndRoleInfo.getAuths();
-
             List<Integer> authList = new ArrayList<>();
-
             Arrays.asList(authsStr.replace(" ", "").split(",")).stream().forEach(x -> authList.add(Integer.parseInt(x.trim())));
-
             loginBo.setAuthList(authList);
         }
         return loginBo;
@@ -338,9 +301,7 @@ public class UserServiceImpl implements UserService {
         String encodePassword = MD5Util.EncoderByMd5(password).toLowerCase();
 
         record.setPassword(encodePassword);
-
         TbUserCriteria param = new TbUserCriteria();
-
         TbUserCriteria.Criteria userCri = param.createCriteria();
 
         userCri.andIsDeletedEqualTo("N");

@@ -28,6 +28,8 @@ public class AesUtils {
 
 	private static final String Algorithm = "AES/CBC/PKCS5Padding";
 
+	private static final BouncyCastleProvider provider = new BouncyCastleProvider();
+
 	/**
 	 *
 	 * @description: AES加密实现
@@ -39,8 +41,8 @@ public class AesUtils {
 	 */
 	public static byte[] encryptMode(String strkey, byte[] src) {
 		try {
-			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-			BouncyCastleProvider provider = new BouncyCastleProvider();
+			Security.addProvider(provider);
+
 //			byte[] keybyte = string2Hex(strkey);
 //			// 生成密钥
 //			SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
@@ -126,7 +128,7 @@ public class AesUtils {
 	public static byte[] decryptMode(String strkey, byte[] src) {
 		try {
 
-			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+			Security.addProvider(provider);
 			/***/
 //			byte[] keybyte = string2Hex(strkey);
 //			// 生成密钥
@@ -137,7 +139,6 @@ public class AesUtils {
 //			SecretKey sk = keygen.generateKey();
 //			SecretKeySpec sk = new SecretKeySpec(strkey.getBytes(),"AES");
 //			Cipher cip = Cipher.getInstance(Algorithm,"BC");
-			BouncyCastleProvider provider = new BouncyCastleProvider();
 			Cipher cip = Cipher.getInstance(Algorithm,provider);
 
 //			provider

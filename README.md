@@ -29,7 +29,7 @@ VideoOS 后端系统兼容主流文件存储系统情况，如下：
 
 可以直接下载项目源码，获取`video_platform`初始化数据脚本，并且执行即可，正常情况下会生成16张表  
 
-附件中 VideoOS 所有的脚本`DDL.sql`以及文件 VideoOS 所有的脚本`DML.sql`，两个脚本文件。  
+附件中 VideoOS 所有的脚本[DDL.sql](docs/DDL.sql)以及文件 VideoOS 所有的脚本[DML.sql](docs/DML.sql)，两个脚本文件。  
 appliction.yml配置文件如下：
 ```yml
 spring:
